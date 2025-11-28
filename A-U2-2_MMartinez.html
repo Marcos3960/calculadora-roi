@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de ROI - Sistema de Gestión Empresarial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #resultados {
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        .punto-inflexion {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="formulario">
+        <h1>Calculadora de ROI para Implantación de ERP</h1>
+        <label for="costesIniciales">Costes Iniciales de Implantación (€):</label>
+        <input type="number" id="costesIniciales" min="0" step="0.01" required placeholder="Ej: 100000">
+
+        <label for="costesAnuales">Costes Anuales Recurrentes (€):</label>
+        <input type="number" id="costesAnuales" min="0" step="0.01" required placeholder="Ej: 10000">
+
+        <label for="ahorrosAnuales">Ahorros/Beneficios Anuales Esperados (€):</label>
+        <input type="number" id="ahorrosAnuales" min="0" step="0.01" required placeholder="Ej: 20000">
+
+        <button type="button" onclick="calcularROI()">Calcular ROI</button>
+    </form>
+
+    <div id="resultados">
+        <h2>Resultados de la Proyección (5 Años)</h2>
+        <div id="puntoInflexion"></div>
+        <table id="tablaResultados">
+            <thead>
+                <tr>
+                    <th>Año</th>
+                    <th>Ingresos Anuales (€)</th>
+                    <th>Inversión Acumulada (€)</th>
+                    <th>Beneficio Acumulado (€)</th>
+                    <th>ROI Acumulado (%)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p><strong>ROI Total al Año 5:</strong> <span id="roiTotal"></span>%</p>
+    </div>
+
+    <script>
+        function calcularROI() {
+            const costesIniciales = parseFloat(document.getElementById('costesIniciales').value);
+            const costesAnuales = parseFloat(document.getElementById('costesAnuales').value);
+            const ahorrosAnuales = parseFloat(document.getElementById('ahorrosAnuales').value);
+
+            let ingresosAcumulados = 0;
+            let inversionAcumulada = costesIniciales;
+            let puntoInflexion = 'No se recupera en 5 años';
+
+            const tbody = document.querySelector('#tablaResultados tbody');
+            tbody.innerHTML = '';
+
+            for (let año = 1; año <= 5; año++) {
+                // Ingresos anuales constantes
+                ingresosAcumulados += ahorrosAnuales;
+
+                // Acumular inversión (costes anuales)
+                inversionAcumulada += costesAnuales;
+
+                // Calcular beneficio acumulado (ingresos - inversión total)
+                const beneficioAcumulado = ingresosAcumulados - inversionAcumulada;
+
+                // Fórmula del ROI: (Ingresos - Inversión) / Inversión × 100
+                const roiAcumulado = ((ingresosAcumulados - inversionAcumulada) / inversionAcumulada) * 100;
+
+                const row = `<tr>
+                    <td>${año}</td>
+                    <td>${ingresosAcumulados.toFixed(2)}</td>
+                    <td>${inversionAcumulada.toFixed(2)}</td>
+                    <td>${beneficioAcumulado.toFixed(2)}</td>
+                    <td>${roiAcumulado.toFixed(2)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+
+                // Determinar punto de inflexión (cuando beneficio acumulado >= 0)
+                if (beneficioAcumulado >= 0 && !puntoInflexion.includes('Año')) {
+                    puntoInflexion = `Punto de Inflexión: Se recupera la inversión inicial en el Año ${año}`;
+                }
+            }
+
+            // ROI total al año 5
+            const roiTotal = ((ingresosAcumulados - inversionAcumulada) / inversionAcumulada) * 100;
+
+            document.getElementById('puntoInflexion').innerHTML = `<p class="punto-inflexion">${puntoInflexion}</p>`;
+            document.getElementById('roiTotal').textContent = roiTotal.toFixed(2);
+            document.getElementById('resultados').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
